@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "AI 悬浮助手 · AI Floating Chat",
+  "version": "1.0.0",
+  "description": "毛玻璃 / 液态玻璃风格的 AI 对话悬浮窗，支持 OpenAI、DeepSeek 及自定义接口，可上传图片、深度思考、多开对话。",
+  "default_locale": "zh_CN",
+  "permissions": ["storage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_title": "AI 悬浮助手",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

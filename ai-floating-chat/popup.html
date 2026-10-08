@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI 悬浮助手</title>
+  <style>
+    :root { color-scheme: light; }
+    body {
+      margin: 0; width: 280px; padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(160deg, #eef3ff, #e7ecf7);
+      color: #0b1220;
+    }
+    h1 { font-size: 15px; margin: 0 0 4px; }
+    .sub { font-size: 12px; color: #5a6478; margin: 0 0 12px; }
+    .card {
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 14px; padding: 12px;
+      box-shadow: 6px 6px 14px rgba(163,177,198,0.35), -6px -6px 14px rgba(255,255,255,0.9);
+    }
+    .status { font-size: 12px; line-height: 1.6; }
+    .ok { color: #1a7f4b; }
+    .bad { color: #c0392b; }
+    button {
+      width: 100%; margin-top: 12px; border: 0; cursor: pointer;
+      padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 600;
+      color: #fff; background: linear-gradient(135deg, #5b9dff, #2f6fed);
+      box-shadow: 0 6px 14px rgba(47,111,237,0.35);
+      transition: transform .16s ease;
+    }
+    button:active { transform: scale(.97); }
+    .tip { font-size: 11px; color: #6b7386; margin: 10px 0 0; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <h1>AI 悬浮助手</h1>
+  <p class="sub">Floating AI Chat</p>
+  <div class="card">
+    <div class="status" id="status">正在读取配置…</div>
+  </div>
+  <button id="open">在页面中打开设置</button>
+  <p class="tip">在任意网页的右下角会显示悬浮球，点击即可展开对话。</p>
+  <script src="popup.js"></script>
+</body>
+</html>
