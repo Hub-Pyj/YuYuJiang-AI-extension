@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "AI 悬浮助手 · AI Floating Chat",
-  "version": "1.0.0",
+  "name": "AI Floating Chat",
+  "version": "1.2.0",
   "description": "毛玻璃 / 液态玻璃风格的 AI 对话悬浮窗，支持 OpenAI、DeepSeek 及自定义接口，可上传图片、深度思考、多开对话。",
   "default_locale": "zh_CN",
   "permissions": ["storage"],
