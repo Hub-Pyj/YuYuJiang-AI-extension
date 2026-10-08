@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI 悬浮助手</title>
+  <title>YuYuJiang-AI-extension</title>
   <style>
     :root { color-scheme: light; }
     body {
@@ -28,19 +28,25 @@
       padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 600;
       color: #fff; background: linear-gradient(135deg, #5b9dff, #2f6fed);
       box-shadow: 0 6px 14px rgba(47,111,237,0.35);
-      transition: transform .16s ease;
+      transition: transform .16s ease, background .2s ease;
     }
     button:active { transform: scale(.97); }
+    button.disabled, button:disabled {
+      cursor: default; color: #6b7386;
+      background: #cdd6e6;
+      box-shadow: none;
+    }
+    button.disabled:active, button:disabled:active { transform: none; }
     .tip { font-size: 11px; color: #6b7386; margin: 10px 0 0; line-height: 1.6; }
   </style>
 </head>
 <body>
-  <h1>AI 悬浮助手</h1>
+  <h1>YuYuJiang-AI-extension</h1>
   <p class="sub">Floating AI Chat</p>
   <div class="card">
     <div class="status" id="status">正在读取配置…</div>
   </div>
-  <button id="open">在页面中打开设置</button>
+  <button id="open">在页面中打开对话</button>
   <p class="tip">在任意网页的右下角会显示悬浮球，点击即可展开对话。</p>
   <script src="popup.js"></script>
 </body>

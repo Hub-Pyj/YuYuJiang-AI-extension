@@ -1,4 +1,9 @@
 /* =========================================================================
+ *  YuYuJiang-AI-extension
+ *  https://github.com/Hub-Pyj/YuYuJiang-AI-extension
+ *  By:Hub-Pyj
+ * -------------------------------------------------------------------------
+ * -------------------------------------------------------------------------
  *  AI 悬浮助手 · background service worker
  *  作用：所有对大模型接口的网络请求都在这里发起。
  *  - 扩展拥有 host_permissions(<all_urls>)，service worker 的 fetch
@@ -131,4 +136,87 @@ chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((msg) => {
     if (msg && msg.type === 'chat') handleChat(port, msg);
   });
+});
+
+/* =========================================================================
+ *  内容脚本「补注入」兜底
+ *  修复：声明式 content_scripts 只在“页面导航”时注入；扩展加载 / 重载之前
+ *  就打开的标签页（例如新标签页初始页、常驻的空白页）不会补注入，导致
+ *  悬浮球不出现、popup 的“在页面中打开对话”消息无人接收。
+ *  这里在 安装 / 浏览器启动 / 点击 popup 时，主动把 content.js 注入进去。
+ * ========================================================================= */
+const INJECTABLE = /^(https?|file):/i;
+
+function canInjectTab(tab) {
+  return !!(tab && tab.id != null && typeof tab.url === 'string' && INJECTABLE.test(tab.url));
+}
+
+function injectContent(tabId) {
+  return new Promise((resolve) => {
+    try {
+      chrome.scripting.executeScript({ target: { tabId: tabId }, files: ['content.js'] }, () => {
+        void chrome.runtime.lastError;
+        resolve(true);
+      });
+    } catch (e) { resolve(false); }
+  });
+}
+
+function pingContent(tabId) {
+  return new Promise((resolve) => {
+    try {
+      chrome.tabs.sendMessage(tabId, { type: 'ai-floating-ping' }, (resp) => {
+        void chrome.runtime.lastError;
+        resolve(resp && resp.ok ? true : false);
+      });
+    } catch (e) { resolve(false); }
+  });
+}
+
+async function ensureContent(tab) {
+  if (!canInjectTab(tab)) return false;
+  if (await pingContent(tab.id)) return true;
+  return await injectContent(tab.id);
+}
+
+function ensureAllTabs() {
+  try {
+    chrome.tabs.query({}, (tabs) => {
+      (tabs || []).forEach(async (t) => {
+        if (canInjectTab(t)) { if (!(await pingContent(t.id))) await injectContent(t.id); }
+      });
+    });
+  } catch (e) { /* ignore */ }
+}
+
+chrome.runtime.onInstalled.addListener(() => { ensureAllTabs(); });
+chrome.runtime.onStartup.addListener(() => { ensureAllTabs(); });
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!msg || !msg.type) return;
+  if (msg.type === 'ai-floating-query-state' || msg.type === 'ai-floating-open-dialog' || msg.type === 'ai-floating-ensure-and-open') {
+    (async () => {
+      let tabId = msg.tabId;
+      if (tabId == null) {
+        const list = await chrome.tabs.query({ active: true, currentWindow: true });
+        tabId = list && list[0] && list[0].id;
+      }
+      if (tabId == null) { sendResponse({ ok: false, reason: 'no-tab' }); return; }
+      const tab = await chrome.tabs.get(tabId).catch(() => null);
+      const ready = await ensureContent(tab);
+      if (!ready) { sendResponse({ ok: false, reason: 'cannot-inject' }); return; }
+      if (msg.type === 'ai-floating-query-state') {
+        chrome.tabs.sendMessage(tabId, { type: 'ai-floating-query-state' }, (resp) => {
+          void chrome.runtime.lastError;
+          sendResponse({ ok: true, expanded: !!(resp && resp.expanded) });
+        });
+      } else {
+        chrome.tabs.sendMessage(tabId, { type: 'ai-floating-open-dialog' }, (resp) => {
+          void chrome.runtime.lastError;
+          sendResponse({ ok: !!(resp && resp.ok), expanded: true });
+        });
+      }
+    })();
+    return true; // keep channel open for async sendResponse
+  }
 });
